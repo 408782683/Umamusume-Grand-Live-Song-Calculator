@@ -914,7 +914,7 @@ function buySong(id) {
     input.value = parseInt(input.value) - song.cost[k];
   }
 
-  inventory.unshift(song);
+  inventory.push(song);
   shopSongs = shopSongs.filter(s => s.id !== id);
 
   if (ignoreNextBuyCount) {
