@@ -219,6 +219,14 @@
   border: 2px solid #5c6bc0;
 }
 
+.practice-card2{
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f7f9ff;
+  border: 2px solid #a11fc1;
+}
+
 .practice-title {
   font-size: 14px;
   font-weight: bold;
@@ -352,10 +360,22 @@
 
 <!-- 重点提示卡 -->
 <div id="practiceHint" class="practice-card">
-  <div class="practice-title">购买歌曲前还需购买课程次数</div>
+  <div class="practice-title">购买当前歌曲前 → 还需购买课程次数</div>
   <div class="practice-value" id="needPractice">-</div>
-  <div class="practice-note">※ 如卡歌，第一次购买的歌曲将不计入</div>
+  <div class="practice-note">※ 如您卡歌，第一次购买的歌曲将不计入当前买歌次数</div>
 </div>
+
+<!-- 下一首歌练习提示卡 -->
+<div id="nextPracticeHint" class="practice-card2">
+  <div class="practice-title">
+    购买当前歌曲后 → 下一首歌曲前还需购买课程次数
+  </div>
+  <div class="practice-value" id="nextNeedPractice">-</div>
+  <div class="practice-note">
+    ※ 用于判断您剩余代币是否该继续买歌
+  </div>
+</div>
+
 
     <p>建议购买歌曲总消耗代币：</p>
     <div id="suggestCost"></div>
@@ -812,7 +832,7 @@ function setTime(time) {
   currentTime = time;
   document.getElementById("currentTime").innerText = time;
 
-  // 切时间点时，买歌次数重置（你之前这点是对的）
+  // 切时间点时，买歌次数重置
   buyCount = 0;
   document.getElementById("buyCount").innerText = buyCount;
 
@@ -894,7 +914,7 @@ function buySong(id) {
     input.value = parseInt(input.value) - song.cost[k];
   }
 
-  inventory.push(song);
+  inventory.unshift(song);
   shopSongs = shopSongs.filter(s => s.id !== id);
 
   if (ignoreNextBuyCount) {
@@ -990,9 +1010,27 @@ function refundSong(id) {
 }
 
 function updatePracticeInfo() {
-  const row = practiceTable.find(r=>r.time===currentTime && r.buy===buyCount);
-  document.getElementById("needPractice").innerText = row ? row.need : "未定义";
+  // 当前买歌前所需练习
+  const currentRow = practiceTable.find(
+    r => r.time === currentTime && r.buy === buyCount
+  );
+
+  document.getElementById("needPractice").innerText =
+    currentRow ? currentRow.need : "未定义";
+
+  // 买完当前歌曲后 → 下一首歌之间所需练习
+  const nextRow = practiceTable.find(
+    r => r.time === currentTime && r.buy === buyCount + 1
+  );
+
+  document.getElementById("nextNeedPractice").innerText =
+    nextRow
+      ? nextRow.need === null
+        ? "不可再购买"
+        : nextRow.need
+      : "未定义";
 }
+
 
 //这里是建议购买歌曲总消耗代币展示图标
 function renderTokenSummary(cost) {
@@ -1243,7 +1281,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <p>2. 点击歌曲即可购买，点击库存区的歌就可以退款。</p>
         <p>3. 选择新时间节点，卡歌弹窗要如实选择，否则练习次数计算会出现偏差。</p>
         <p>4. 游戏买歌的过程中，在库存区输入当前代币，就会计算还能将多少代币用于买课程。</p>
-        <p>5. 如果有任何疑问、建议或者bug需要反馈，欢迎点击页面下方的up主页联系我</p>
+        <p>5. 如果有任何疑问或bug，欢迎点击页面下方的up主页联系我</p>
         <p>6. 祝大家都能养出心仪的小马</p>
       </div>
 
