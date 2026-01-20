@@ -860,6 +860,15 @@ const cardSongConfirmTimes = [
   "第三年七月前半"
 ];
 
+//时间顺序表
+const timeOrder = [
+  "出道战倒数第八个回合后",
+  "第二年一月前半",
+  "第二年七月前半",
+  "第三年一月前半",
+  "第三年七月前半"
+];
+
 
 function renderShop() {
   const shop = document.getElementById("shop");
@@ -1095,25 +1104,26 @@ function onTimeButtonClick(btn) {
   const time = btn.dataset.time;
   if (disabledTimes.has(time)) return;
 
-  // 标记按钮不可再点
+  // 当前按钮禁用
   disabledTimes.add(time);
   btn.classList.add("disabled");
   btn.disabled = true;
 
   handleCardSongConfirm(time);
   setTime(time);
+
+  // 解锁下一个时间节点
+  const index = timeOrder.indexOf(time);
+  if (index !== -1 && index < timeOrder.length - 1) {
+    const nextTime = timeOrder[index + 1];
+    const nextBtn = document.querySelector(`button[data-time="${nextTime}"]`);
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.classList.remove("disabled");
+    }
+  }
 }
 
-//购买成功提示弹窗函数
-function showBuySuccess(songName) {
-  const toast = document.getElementById("toast");
-  toast.innerText = `成功购买歌曲「${songName}」`;
-  toast.classList.add("show");
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 1500);
-}
 
 //渲染代币差值
 function renderTokenDiff() {
@@ -1245,6 +1255,21 @@ document.addEventListener("DOMContentLoaded", () => {
     mask.style.display = "none";
   });
 });
+// 初始时间节点按钮
+function initTimeButtons() {
+  const buttons = document.querySelectorAll("button[data-time]");
+
+  buttons.forEach(btn => {
+    const time = btn.dataset.time;
+    if (time !== timeOrder[0]) {
+      btn.disabled = true;
+      btn.classList.add("disabled");
+    }
+  });
+}
+
+initTimeButtons();
+
 
 
 </script>
